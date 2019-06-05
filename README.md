@@ -55,7 +55,7 @@
 #reduce  
 #reducuRight  
   
-#其他数组方法的模式你实现  
+#其他数组方法的模拟实现  
 ------
 #push  
 #unique1  
