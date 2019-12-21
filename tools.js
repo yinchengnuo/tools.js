@@ -1234,80 +1234,94 @@ function downJs(src, callback) {
   script.src = src;
 }
 
-HTMLCanvasElement.prototype.identify = function (conf) {  //在canvas 原型上封装的 生成常规验证码的方法
+HTMLCanvasElement.prototype.identify = function(conf, value) {
+  // 在canvas 原型上封装的 生成常规验证码的方法
   const that = this
-  const identifybase = conf &&  conf.identifybase || '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const length = conf &&  conf.lengt || 4  //验证码字数数量
-  const fontSizeMin = conf &&  conf.fontSizeMin || 200  //验证码字体大小
-  const fontSizeMax = conf &&  conf.fontSizeMax || 350  //验证码字体大小
-  const backgroundColorMin = conf &&  conf.backgroundColorMin || 123  //验证码区域背景色区间
-  const backgroundColorMax = conf &&  conf.backgroundColorMax || 234  //验证码区域背景色区间
-  const colorMin = conf &&  conf.colorMin || 50  //验证码颜色区间
-  const colorMax = conf &&  conf.colorMax || 160  //验证码颜色区间
-  const lineColorMin = conf &&  conf.lineColorMin || 40  //干扰线颜色区间
-  const lineColorMax = conf &&  conf.lineColorMax || 180  //干扰线颜色区间
-  const dotColorMin = conf &&  conf.dotColorMin || 0  //干扰点颜色区间
-  const dotColorMax = conf &&  conf.dotColorMax || 255  //干扰点颜色区间
-  const contentWidth = conf &&  conf.contentWidth || +getComputedStyle(identify, null).width.replace('px', '')
-  const contentHeight = conf &&  conf.contentHeight || +getComputedStyle(identify, null).height.replace('px', '')
-  let identifyCode = ''
+  const identifybase =
+    (conf && conf.identifybase) ||
+    '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const length = (conf && conf.lengt) || 4 // 验证码字数数量
+  const fontSizeMin = (conf && conf.fontSizeMin) || 200 // 验证码字体大小
+  const fontSizeMax = (conf && conf.fontSizeMax) || 350 // 验证码字体大小
+  const backgroundColorMin = (conf && conf.backgroundColorMin) || 123 // 验证码区域背景色区间
+  const backgroundColorMax = (conf && conf.backgroundColorMax) || 234 // 验证码区域背景色区间
+  const colorMin = (conf && conf.colorMin) || 50 // 验证码颜色区间
+  const colorMax = (conf && conf.colorMax) || 160 // 验证码颜色区间
+  const lineColorMin = (conf && conf.lineColorMin) || 40 // 干扰线颜色区间
+  const lineColorMax = (conf && conf.lineColorMax) || 180 // 干扰线颜色区间
+  const dotColorMin = (conf && conf.dotColorMin) || 0 // 干扰点颜色区间
+  const dotColorMax = (conf && conf.dotColorMax) || 255 // 干扰点颜色区间
+  const contentWidth = (conf && conf.contentWidth) || 100
+  const contentHeight = (conf && conf.contentHeight) || 60
+  let identifyCode = value
 
-  function randomNum(min, max) {  //产生区间随机数
-      return Math.floor(Math.random() * (max - min) + min);   
+  function randomNum(min, max) {
+    // 产生区间随机数
+    return Math.floor(Math.random() * (max - min) + min)
   }
-  function randomColor (min, max) {  // 生成一个随机的颜色
-      let r = randomNum(min, max)
-      let g = randomNum(min, max)
-      let b = randomNum(min, max)
-      return 'rgb(' + r + ',' + g + ',' + b + ')'
+  function randomColor(min, max) {
+    // 生成一个随机的颜色
+    const r = randomNum(min, max)
+    const g = randomNum(min, max)
+    const b = randomNum(min, max)
+    return 'rgb(' + r + ',' + g + ',' + b + ')'
   }
   function makeCode(identifybase, length) {
-      for (let i = 0; i < length; i++) {
-          identifyCode += identifybase[randomNum(0, identifybase.length)]
-      }
+    for (let i = 0; i < length; i++) {
+      identifyCode += identifybase[randomNum(0, identifybase.length)]
+    }
   }
-  makeCode(identifybase, length)  //产生随机验证码
+  !identifyCode && makeCode(identifybase, length) // 如果不指定验证码就产生随机验证码
 
-  function drawText (ctx, txt, i) {
-      ctx.fillStyle = randomColor(colorMin, colorMax)
-      ctx.font = randomNum(fontSizeMin, fontSizeMax) + 'px SimHei'
-      let x = (i + 1) * (contentWidth / (identifyCode.length + 1))
-      let y = randomNum(fontSizeMax, contentHeight - 5)
-      const deg = randomNum(-45, 45)  // 修改坐标原点和旋转角度
-      ctx.translate(x, y)
-      ctx.rotate(deg * Math.PI / 180)
-      ctx.fillText(txt, 0, 0)  // 恢复坐标原点和旋转角度
-      ctx.rotate(-deg * Math.PI / 180)
-      ctx.translate(-x, -y)
-  }
-
-  function drawLine (ctx) {  // 绘制干扰线
-      for (let i = 0; i < 3; i++) {
-          ctx.strokeStyle = randomColor(lineColorMin, lineColorMax)
-          ctx.beginPath()
-          ctx.moveTo(randomNum(0, contentWidth), randomNum(0, contentHeight))
-          ctx.lineTo(randomNum(0, contentWidth), randomNum(0, contentHeight))
-          ctx.stroke()
-      }
-  }
-  function drawDot (ctx) {  // 绘制干扰点
-      for (let i = 0; i < 30; i++) {
-          ctx.fillStyle = randomColor(dotColorMin, dotColorMax)
-          ctx.beginPath()
-          ctx.arc(randomNum(0, contentWidth), randomNum(0, contentHeight), 1, 0, 2 * Math.PI)
-          ctx.fill()
-      }
+  function drawText(ctx, txt, i) {
+    ctx.fillStyle = randomColor(colorMin, colorMax)
+    ctx.font = randomNum(fontSizeMin, fontSizeMax) + 'px SimHei'
+    const x = (i + 1) * (contentWidth / (identifyCode.length + 1))
+    const y = randomNum(fontSizeMax, contentHeight - 5)
+    const deg = randomNum(-45, 45) // 修改坐标原点和旋转角度
+    ctx.translate(x, y)
+    ctx.rotate((deg * Math.PI) / 180)
+    ctx.fillText(txt, 0, 0) // 恢复坐标原点和旋转角度
+    ctx.rotate((-deg * Math.PI) / 180)
+    ctx.translate(-x, -y)
   }
 
-  function drawPic () {
-      const ctx = that.getContext('2d')
-      ctx.fillStyle = randomColor(backgroundColorMin, backgroundColorMax)
-      ctx.fillRect(0, 0, contentWidth, contentHeight)
-      for (let i = 0; i < identifyCode.length; i++) {  // 绘制文字
-          drawText(ctx, identifyCode[i], i)
-      }
-      drawLine(ctx)  // 绘制干扰线
-      drawDot(ctx)  // 绘制干扰点
+  function drawLine(ctx) {
+    // 绘制干扰线
+    for (let i = 0; i < 3; i++) {
+      ctx.strokeStyle = randomColor(lineColorMin, lineColorMax)
+      ctx.beginPath()
+      ctx.moveTo(randomNum(0, contentWidth), randomNum(0, contentHeight))
+      ctx.lineTo(randomNum(0, contentWidth), randomNum(0, contentHeight))
+      ctx.stroke()
+    }
+  }
+  function drawDot(ctx) {
+    // 绘制干扰点
+    for (let i = 0; i < 30; i++) {
+      ctx.fillStyle = randomColor(dotColorMin, dotColorMax)
+      ctx.beginPath()
+      ctx.arc(
+        randomNum(0, contentWidth),
+        randomNum(0, contentHeight),
+        1,
+        0,
+        2 * Math.PI
+      )
+      ctx.fill()
+    }
+  }
+
+  function drawPic() {
+    const ctx = that.getContext('2d')
+    ctx.fillStyle = randomColor(backgroundColorMin, backgroundColorMax)
+    ctx.fillRect(0, 0, contentWidth, contentHeight)
+    for (let i = 0; i < identifyCode.length; i++) {
+      // 绘制文字
+      drawText(ctx, identifyCode[i], i)
+    }
+    drawLine(ctx) // 绘制干扰线
+    drawDot(ctx) // 绘制干扰点
   }
   drawPic()
 }
